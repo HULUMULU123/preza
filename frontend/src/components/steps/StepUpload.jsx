@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 const recentDocuments = [
@@ -29,6 +29,30 @@ const statusTone = {
 };
 
 export default function StepUpload({ onStartAnalysis, disabled }) {
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    if (!disabled) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setIsDragging(false);
+  };
+
+  const uploadZoneClassName = ['upload-zone'];
+  if (isDragging) {
+    uploadZoneClassName.push('upload-zone--dragging');
+  }
+
   return (
     <div className="page-card">
       <h3 className="section-title">Загрузка документа</h3>
@@ -36,13 +60,39 @@ export default function StepUpload({ onStartAnalysis, disabled }) {
         Вставьте ваш файл, а остальное оставьте нам — мультиагент сам поймет структуру
         выписки и подготовит следующий шаг.
       </p>
-      <div className="upload-zone">
-        <strong>Перетащите выписку сюда</strong>
-        <span>или выберите документ на устройстве</span>
+      <div
+        className={uploadZoneClassName.join(' ')}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <input id="statement-upload" type="file" className="upload-zone__input" multiple />
+        <label htmlFor="statement-upload" className="upload-zone__drop">
+          <span className="upload-zone__icon" aria-hidden>
+            <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="12" width="48" height="32" rx="12" stroke="currentColor" strokeWidth="2" opacity="0.35" />
+              <path
+                d="M28 18V36"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M22 24L28 18L34 24"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <strong>Перетащите выписку сюда</strong>
+          <span className="upload-zone__hint">или выберите документ на устройстве</span>
+        </label>
         <div className="upload-actions">
-          <button className="secondary-button" type="button">
+          <label htmlFor="statement-upload" className="secondary-button upload-zone__trigger">
             Выбрать файл
-          </button>
+          </label>
           <button className="primary-button" type="button" onClick={onStartAnalysis} disabled={disabled}>
             Запустить анализ
           </button>
